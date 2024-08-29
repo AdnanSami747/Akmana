@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini App for Telegram Airdrop</title>
+    <style>
+        /* Basic styling for the app */
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .container { width: 90%; max-width: 500px; margin: 20px auto; text-align: center; }
+        .nav-bar { display: flex; justify-content: center; margin-bottom: 20px; }
+        .nav-bar .button { padding: 15px; margin: 5px; cursor: pointer; border-radius: 5px; border: none; color: white; font-size: 16px; display: inline-block; }
+        .home { background-color: #4CAF50; }
+        .task { background-color: #2196F3; }
+        .leaderboard { background-color: #FF9800; }
+        .wallet { background-color: #9C27B0; }
+        .start-mining { background-color: rgb(79, 205, 20); color: #fafcfa; border: 2px solid #4CAF50; }
+        .button img { margin-right: 10px; width: 24px; height: 24px; vertical-align: middle; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WELCOME TO ALMAANA</h1>
+        <div class="nav-bar">
+            <button class="button home" onclick="showHome()">HOME</button>
+            <button class="button task" onclick="showTasks()">TASK</button>
+            <button class="button leaderboard" onclick="showLeaderboard()">LEADERBOARD</button>
+            <button class="button wallet" onclick="showWallet()">WALLET</button>
+        </div>
+
+        <div id="content">
+            <button class="button start-mining" onclick="startMining()">Start Mining</button>
+            <p id="mining-coins">Total Mining Coins: 0</p>
+        </div>
+    </div>
+
+    <script>
+        const TELEGRAM_BOT_URL = 'https://88a2-223-123-3-166.ngrok-free.app/webhook'; // Update this with your actual webhook URL
+        let coins = 0;
+        let tasksCompleted = {};
+
+        function sendToTelegram(message) {
+            fetch(TELEGRAM_BOT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => console.log('Sent to Telegram:', data))
+            .catch(error => console.error('Error sending to Telegram:', error));
+        }
+
+        function startMining() {
+            coins++;
+            document.getElementById('mining-coins').innerHTML = `Total Mining Coins: ${coins}`;
+            sendToTelegram(`User started mining. Current coins: ${coins}`);
+        }
+
+        function showTasks() {
+            let taskHtml = `
+                <p>Complete the following tasks to earn coins:</p>
+                <ul>
+                    <li>
+                        <button onclick="completeTask('YouTube')" class="button task">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/4/42/YouTube_icon_%282013-2017%29.png" alt="YouTube Logo"> Subscribe to YouTube Channel (10,000 coins)
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="completeTask('Twitter')" class="button task">
+                            <img src="icons8-twitter-24.png" alt="Twitter Logo"> Follow on Twitter (10,000 coins)
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="completeTask('Telegram')" class="button task">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram Logo"> Join Telegram Group (10,000 coins)
+                        </button>
+                    </li>
+                </ul>
+            `;
+            document.getElementById('content').innerHTML = taskHtml;
+        }
+
+        function completeTask(task) {
+            if (!tasksCompleted[task]) {
+                tasksCompleted[task] = true;
+                coins += 10000;
+                document.getElementById('content').innerHTML = `You completed the ${task} task and earned 10,000 coins! Total: ${coins} coins`;
+                
+                if (Object.keys(tasksCompleted).length === 3) {
+                    document.getElementById('content').innerHTML += `<p>Congratulations! You have completed all tasks and earned an additional 10,000 coins! Total: ${coins} coins</p>`;
+                    coins += 10000; // Bonus for completing all tasks
+                }
+                
+                sendToTelegram(`User completed the ${task} task. Total coins: ${coins}`);
+            } else {
+                document.getElementById('content').innerHTML = `Task already completed! Total: ${coins} coins`;
+            }
+        }
+
+        function showLeaderboard() {
+            document.getElementById('content').innerHTML = `
+                <h2>Leaderboard</h2>
+                <p>Top user: User123 (50,000 coins)</p>
+                <p>Top user: User456 (45,000 coins)</p>
+                <p>More coming soon...</p>
+            `;
+        }
+
+        function showWallet() {
+            document.getElementById('content').innerHTML = `
+                <p>TON Wallet coming soon...</p>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/Ton_Logo.svg" alt="TON Logo" style="width: 50px; height: 50px;">
+            `;
+        }
+
+        function showHome() {
+            document.getElementById('content').innerHTML = `
+                <button class="button start-mining" onclick="startMining()">Start Mining</button>
+                <p id="mining-coins">Total Mining Coins: ${coins}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
